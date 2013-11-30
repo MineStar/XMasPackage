@@ -2,7 +2,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.minestar</groupId>
-	<artifactId>ClashOfKingdoms</artifactId>
+	<artifactId>XMAS</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<distributionManagement>
 		<!-- use the following if you're not using a snapshot version. -->
@@ -40,8 +40,8 @@
 	<dependencies>
 		<dependency>
 			<groupId>de.minestar</groupId>
-			<artifactId>minestarlibrary</artifactId>
-			<version>1.9.2</version>
+			<artifactId>MineStarLibrary</artifactId>
+			<version>1.6.2_R1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 </project>

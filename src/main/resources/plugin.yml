@@ -1,8 +1,8 @@
-name: Clash of Kingdoms
-main: de.minestar.clashofkingdoms.COKCore
+name: XMAS
+main: de.minestar.xmas.XMASCore
 version: ${pom.version}
 depend: [MineStarLibrary]
 commands:
-    cok:
-        description: CoK related commands.
+    xmas:
+        description: XMAS related commands.
         usage: /<command> <cmd 1> ... <cmd n>

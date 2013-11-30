@@ -1,4 +1,4 @@
-package de.minestar.clashofkingdoms.utils;
+package de.minestar.xmas.data;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -124,6 +124,10 @@ public class BlockVector implements Comparable<BlockVector> {
 
     @Override
     public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+
         if (obj == this)
             return true;
 
@@ -152,9 +156,11 @@ public class BlockVector implements Comparable<BlockVector> {
      * @return <b>true</b> if the vectors are equal, otherwise <b>false</b>
      */
     public boolean equals(BlockVector other) {
+        if (other == null) {
+            return false;
+        }
         return (this.x == other.x && this.y == other.y && this.z == other.z && this.worldName.equalsIgnoreCase(other.worldName));
     }
-
     @Override
     public int hashCode() {
         if (this.hashCode == Integer.MIN_VALUE) {
@@ -176,5 +182,38 @@ public class BlockVector implements Comparable<BlockVector> {
     @Override
     public int compareTo(BlockVector other) {
         return this.hashCode() - other.hashCode();
+    }
+
+    public static String LocationToString(Location location) {
+        if (location == null) {
+            return "NULL";
+        }
+        return location.getWorld().getName() + ";" + location.getX() + ";" + location.getY() + ";" + location.getZ() + ";" + location.getYaw() + ";" + location.getPitch();
+    }
+
+    public static Location LocationFromString(String string) {
+        try {
+            String[] split = string.split(";");
+            World world = Bukkit.getWorld(split[0]);
+            if (world == null) {
+                return null;
+            }
+
+            return new Location(world, Double.valueOf(split[1]), Double.valueOf(split[2]), Double.valueOf(split[3]), Float.valueOf(split[4]), Float.valueOf(split[5]));
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public static String BlockVectorToString(BlockVector vector) {
+        return LocationToString(vector.getLocation());
+    }
+
+    public static BlockVector BlockVectorFromString(String string) {
+        Location location = LocationFromString(string);
+        if (location == null) {
+            return null;
+        }
+        return new BlockVector(location);
     }
 }
