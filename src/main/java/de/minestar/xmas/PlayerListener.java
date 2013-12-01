@@ -11,6 +11,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
@@ -41,14 +42,14 @@ public class PlayerListener implements Listener {
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
-        if (event.getClickedBlock() == null) {
+        if (event.getClickedBlock() == null || event.getAction() != Action.RIGHT_CLICK_BLOCK) {
             return;
         }
 
         Player player = event.getPlayer();
         Block block = event.getClickedBlock();
 
-        if ((!block.getType().equals(Material.STONE_BUTTON) && !block.getType().equals(Material.WOOD_BUTTON)) || block.getData() < 1 || block.getData() > 4) {
+        if ((!block.getType().equals(Material.STONE_BUTTON) && !block.getType().equals(Material.WOOD_BUTTON))) { // || block.getData() < 1 || block.getData() > 4) {
             return;
         }
 
@@ -92,7 +93,7 @@ public class PlayerListener implements Listener {
             this.punishPlayer(player);
         } else {
             if (day.addPlayer(player.getName())) {
-                day.dispenseItems(player.getName());
+                day.dispenseItems();
             }
         }
         return;

@@ -240,13 +240,19 @@ public class XMasDay {
             BufferedReader reader = new BufferedReader(new FileReader(file));
             String zeile = "";
 
-            while ((zeile = reader.readLine()) != null) {
+            zeile = reader.readLine();
+            while (zeile != null) {
                 if (!zeile.equalsIgnoreCase("NULL")) {
                     BlockVector vector = BlockVector.BlockVectorFromString(zeile);
                     if (vector != null) {
                         this.buttons.add(vector);
+                    } else {
+                        System.out.println("Button for day " + this.day + " is null: " + zeile);
                     }
+                } else {
+                    System.out.println("Button for day " + this.day + " is null: " + zeile);
                 }
+                zeile = reader.readLine();
             }
 
             reader.close();
@@ -254,7 +260,6 @@ public class XMasDay {
             e.printStackTrace();
         }
     }
-
     public void loadItemsFromFile() {
         this.loadItemsFromNBT();
     }
@@ -419,12 +424,8 @@ public class XMasDay {
         return false;
     }
 
-    public boolean dispenseItems(String playerName) {
+    public boolean dispenseItems() {
         if (this.dispenserPos == null) {
-            return false;
-        }
-
-        if (this.hasPlayer(playerName)) {
             return false;
         }
 

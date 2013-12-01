@@ -55,6 +55,7 @@ public class SQLite extends AbstractSQLiteHandler {
         try {
             Statement statement = this.connection.createStatement();
             ResultSet results = statement.executeQuery("SELECT * FROM day_" + day + " WHERE player='" + player + "'");
+            boolean found = false;
             while (results.next()) {
                 return true;
             }
