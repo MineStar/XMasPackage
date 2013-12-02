@@ -64,9 +64,12 @@ public class AdminListener implements Listener {
             XMasDay day = XMASCore.getDayByDate(dayN);
 
             BlockVector buttonPos = new BlockVector(block.getLocation());
-            day.addButtonPos(buttonPos);
-            XMASCore.registerBlock(buttonPos, day);
-            PlayerUtils.sendSuccess(player, XMASCore.NAME, "Buttonposition for day " + dayN + " set!");
+            if (day.addButtonPos(buttonPos)) {
+                XMASCore.registerBlock(buttonPos, day);
+                PlayerUtils.sendSuccess(player, XMASCore.NAME, "Buttonposition for day " + dayN + " set!");
+            } else {
+                PlayerUtils.sendSuccess(player, XMASCore.NAME, "Could not save buttonposition!!");
+            }
 
             event.setCancelled(true);
             event.setUseInteractedBlock(Result.DENY);

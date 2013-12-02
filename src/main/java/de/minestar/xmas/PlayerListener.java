@@ -122,8 +122,11 @@ public class PlayerListener implements Listener {
             for (XMasDay day : XMASCore.dayMapByDate.values()) {
                 if (day.hasButtonPos(vector)) {
                     if (player.isOp()) {
-                        day.removeButtonPos(vector);
-                        PlayerUtils.sendInfo(player, XMASCore.NAME, "Button unregistered!");
+                        if (day.removeButtonPos(vector)) {
+                            PlayerUtils.sendInfo(player, XMASCore.NAME, "Button unregistered!");
+                        } else {
+                            PlayerUtils.sendError(player, XMASCore.NAME, "Failed to remove button from database!");
+                        }
                         return;
                     } else {
                         event.setCancelled(true);

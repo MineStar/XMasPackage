@@ -44,6 +44,7 @@ public class XMasDay {
         this.loadDispenserFromFile();
         this.loadButtonsFromFile();
         this.loadItemsFromFile();
+        this.buttons.addAll(XMASCore.database.getButtonsForDay(day));
     }
 
     public boolean addPlayer(String playerName) {
@@ -59,11 +60,15 @@ public class XMasDay {
         this.saveDispenserToFile();
     }
 
-    public void addButtonPos(BlockVector buttonPos) {
+    public boolean addButtonPos(BlockVector buttonPos) {
         if (!this.hasButtonPos(buttonPos)) {
-            this.buttons.add(buttonPos);
-            this.saveButtonsToFile();
+            if (XMASCore.database.addButton(this.day, buttonPos)) {
+                this.buttons.add(buttonPos);
+                return true;
+            }
+            return false;
         }
+        return true;
     }
 
     public boolean hasButtonPos(BlockVector buttonPos) {
@@ -75,7 +80,7 @@ public class XMasDay {
         return false;
     }
 
-    public void removeButtonPos(BlockVector buttonPos) {
+    public boolean removeButtonPos(BlockVector buttonPos) {
         int index = -1;
         int found = -1;
         for (BlockVector vector : this.buttons) {
@@ -87,31 +92,14 @@ public class XMasDay {
         }
 
         if (found != -1) {
-            this.buttons.remove(found);
-            this.saveButtonsToFile();
-        }
-    }
-
-    private void saveButtonsToFile() {
-        File file = new File(XMASCore.INSTANCE.getDataFolder(), "buttons_" + this.day + ".txt");
-
-        if (file.exists()) {
-            file.delete();
-        }
-
-        try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter(file, true));
-
-            for (BlockVector buttonPos : this.buttons) {
-                writer.write(BlockVector.BlockVectorToString(buttonPos));
+            if (XMASCore.database.removeButton(this.day, this.buttons.get(found))) {
+                this.buttons.remove(found);
+                return true;
+            } else {
+                return false;
             }
-
-            writer.flush();
-            writer.close();
-
-        } catch (Exception e) {
-            e.printStackTrace();
         }
+        return true;
     }
 
     public void saveDispenserToFile() {
@@ -232,7 +220,6 @@ public class XMasDay {
     public void loadButtonsFromFile() {
         File file = new File(XMASCore.INSTANCE.getDataFolder(), "buttons_" + this.day + ".txt");
         if (!file.exists()) {
-            ConsoleUtils.printInfo(XMASCore.NAME, "BUTTONS FOR DAY " + this.day + " NOT FOUND!");
             return;
         }
 
@@ -260,6 +247,7 @@ public class XMasDay {
             e.printStackTrace();
         }
     }
+
     public void loadItemsFromFile() {
         this.loadItemsFromNBT();
     }
