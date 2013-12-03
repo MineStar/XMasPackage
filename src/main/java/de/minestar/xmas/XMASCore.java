@@ -47,6 +47,11 @@ public class XMASCore extends AbstractCore {
 
         database = new SQLite(XMASCore.NAME, new File(getDataFolder(), "sqlconfig.yml"));
         database.init();
+        for (int day = 1; day <= 24; day++) {
+            XMasDay currentDay = dayMapByDate.get(day);
+            currentDay.loadButtonsFromDB();
+        }
+
         return super.createManager();
     }
 

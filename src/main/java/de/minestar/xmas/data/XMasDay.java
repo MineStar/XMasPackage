@@ -44,7 +44,6 @@ public class XMasDay {
         this.loadDispenserFromFile();
         this.loadButtonsFromFile();
         this.loadItemsFromFile();
-        this.buttons.addAll(XMASCore.database.getButtonsForDay(day));
     }
 
     public boolean addPlayer(String playerName) {
@@ -460,5 +459,12 @@ public class XMasDay {
 
     public ArrayList<BlockVector> getButtons() {
         return buttons;
+    }
+
+    public void loadButtonsFromDB() {
+        this.buttons.addAll(XMASCore.database.getButtonsForDay(this.day));
+        for (BlockVector vector : this.buttons) {
+            XMASCore.registerBlock(vector, this);
+        }
     }
 }
