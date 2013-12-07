@@ -41,7 +41,7 @@
 		<dependency>
 			<groupId>de.minestar</groupId>
 			<artifactId>MineStarLibrary</artifactId>
-			<version>1.6.2_R1-SNAPSHOT</version>
+			<version>1.7.2_R0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 </project>

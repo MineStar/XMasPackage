@@ -2,29 +2,26 @@ package de.minestar.xmas.data;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.DataInput;
 import java.io.DataInputStream;
+import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
-import net.minecraft.server.v1_6_R2.NBTBase;
-import net.minecraft.server.v1_6_R2.NBTTagCompound;
-import net.minecraft.server.v1_6_R2.NBTTagList;
+import net.minecraft.server.v1_7_R1.NBTTagCompound;
+import net.minecraft.server.v1_7_R1.NBTTagList;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Dispenser;
 import org.bukkit.block.Dropper;
-import org.bukkit.craftbukkit.v1_6_R2.inventory.CraftItemStack;
-import org.bukkit.enchantments.Enchantment;
+import org.bukkit.craftbukkit.v1_7_R1.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import de.minestar.minestarlibrary.utils.ConsoleUtils;
 import de.minestar.xmas.XMASCore;
@@ -43,7 +40,7 @@ public class XMasDay {
         this.buttons = new ArrayList<BlockVector>();
         this.loadDispenserFromFile();
         this.loadButtonsFromFile();
-        this.loadItemsFromFile();
+        this.loadItemsFromNBT();
     }
 
     public boolean addPlayer(String playerName) {
@@ -124,10 +121,6 @@ public class XMasDay {
         }
     }
 
-    public void saveItemsToFile() {
-        this.saveItemsToNBTFile();
-    }
-
     public void saveItemsToNBTFile() {
         File file = new File(XMASCore.INSTANCE.getDataFolder(), "items_" + this.day + ".nbt");
 
@@ -151,14 +144,19 @@ public class XMasDay {
             NBTTagList tagList = new NBTTagList();
             for (int i = 0; i < this.itemList.size(); i++) {
                 if (this.itemList.get(i) != null) {
-                    NBTTagCompound singleItemCompound = new NBTTagCompound();
-                    CraftItemStack.asNMSCopy(this.itemList.get(i)).save(singleItemCompound);
-                    tagList.add(singleItemCompound);
+                    tagList.add(XMasDay.ItemStackToNBT(this.itemList.get(i)));
                 }
             }
 
             // write to stream
-            NBTBase.a(tagList, outputStream);
+            // thanks to @Bukkit, we need reflections here...
+            try {
+                Method method = NBTTagList.class.getDeclaredMethod("write", DataOutput.class);
+                method.setAccessible(true);
+                method.invoke(tagList, outputStream);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
             // close stream
             outputStream.close();
@@ -166,7 +164,6 @@ public class XMasDay {
             e.printStackTrace();
         }
     }
-
     public void loadItemsFromNBT() {
         this.itemList = new ArrayList<ItemStack>();
         File file = new File(XMASCore.INSTANCE.getDataFolder(), "items_" + this.day + ".nbt");
@@ -176,18 +173,28 @@ public class XMasDay {
         }
 
         try {
-            DataInputStream reader = new DataInputStream(new FileInputStream(file));
-            int itemAmount = reader.readInt();
+            DataInputStream inputStream = new DataInputStream(new FileInputStream(file));
+            int itemAmount = inputStream.readInt();
 
-            NBTTagList tagList = (NBTTagList) NBTBase.a(reader);
+            // load items from file
+            // thanks to @Bukkit, we need reflections here...
+            NBTTagList tagList = new NBTTagList();
+            try {
+                Method method = NBTTagList.class.getDeclaredMethod("load", DataInput.class, int.class);
+                method.setAccessible(true);
+                method.invoke(tagList, inputStream, 0);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
             this.itemList.clear();
             for (int i = 0; i < itemAmount; i++) {
-                net.minecraft.server.v1_6_R2.ItemStack nativeStack = net.minecraft.server.v1_6_R2.ItemStack.createStack((NBTTagCompound) tagList.get(i));
+                net.minecraft.server.v1_7_R1.ItemStack nativeStack = net.minecraft.server.v1_7_R1.ItemStack.createStack((NBTTagCompound) tagList.get(i));
                 ItemStack bukkitStack = CraftItemStack.asBukkitCopy(nativeStack);
                 this.itemList.add(bukkitStack);
             }
 
-            reader.close();
+            inputStream.close();
         } catch (Exception e) {
             this.itemList.clear();
             e.printStackTrace();
@@ -247,106 +254,11 @@ public class XMasDay {
         }
     }
 
-    public void loadItemsFromFile() {
-        this.loadItemsFromNBT();
-    }
-
     public static NBTTagCompound ItemStackToNBT(ItemStack stack) {
-        net.minecraft.server.v1_6_R2.ItemStack nStack = CraftItemStack.asNMSCopy(stack);
+        net.minecraft.server.v1_7_R1.ItemStack nStack = CraftItemStack.asNMSCopy(stack);
         NBTTagCompound tagCompound = new NBTTagCompound();
         nStack.save(tagCompound);
         return tagCompound;
-    }
-
-    public static String ItemStackToString(ItemStack stack) {
-        net.minecraft.server.v1_6_R2.ItemStack nStack = CraftItemStack.asNMSCopy(stack);
-        NBTTagCompound tagCompount = new NBTTagCompound();
-        nStack.save(tagCompount);
-
-        String itemName = "";
-        String lore = "";
-        int index = 0;
-        String enchantments = "";
-        if (stack.getItemMeta() != null) {
-            itemName = stack.getItemMeta().getDisplayName();
-
-            if (itemName == null) {
-                itemName = "NULL";
-            }
-            if (stack.getItemMeta().getLore() != null) {
-                for (String singleLore : stack.getItemMeta().getLore()) {
-                    lore += singleLore;
-                    index++;
-                    if (index < stack.getItemMeta().getLore().size()) {
-                        lore += "-+-";
-                    }
-                }
-            } else {
-                lore = "NULL";
-            }
-
-            for (Map.Entry<Enchantment, Integer> entry : stack.getItemMeta().getEnchants().entrySet()) {
-                enchantments += ";" + entry.getKey().getName() + ";" + entry.getValue();
-            }
-        } else {
-            for (Map.Entry<Enchantment, Integer> entry : stack.getEnchantments().entrySet()) {
-                enchantments += ";" + entry.getKey().getName() + ";" + entry.getValue();
-            }
-        }
-
-        String text = stack.getAmount() + ";" + stack.getTypeId() + ";" + stack.getDurability() + ";" + itemName + ";" + lore + enchantments;
-        return text;
-    }
-
-    public static ItemStack ItemStackFromString(String string) {
-        String[] split = string.split(";");
-        try {
-            int amount = Integer.valueOf(split[0]);
-            int ID = Integer.valueOf(split[1]);
-            short subID = Short.valueOf(split[2]);
-            String itemName = split[3];
-
-            // create stack
-            ItemStack stack = new ItemStack(ID);
-            stack.setDurability(subID);
-
-            // set amount
-            stack.setAmount(amount);
-
-            // add enchantments
-            for (int i = 5; i < split.length; i = i + 2) {
-                int level = Integer.valueOf(split[i + 1]);
-                Enchantment enchantment = Enchantment.getByName(split[i]);
-                stack.addEnchantment(enchantment, level);
-            }
-
-            // create itemMeta
-            ItemMeta meta = stack.getItemMeta();
-            if (meta == null) {
-                meta = Bukkit.getItemFactory().getItemMeta(Material.getMaterial(ID));
-            }
-
-            // set displayname
-            if (!itemName.equalsIgnoreCase("NULL")) {
-                meta.setDisplayName(itemName);
-            }
-
-            // set lore
-            if (!split[4].equalsIgnoreCase("NULL")) {
-                List<String> lore = new ArrayList<String>();
-                String[] loreSplit = split[4].split("-+-");
-                for (String loreText : loreSplit) {
-                    lore.add(loreText);
-                }
-                meta.setLore(lore);
-            }
-
-            stack.setItemMeta(meta);
-            return stack;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
     }
 
     public void updateItems(Dispenser dispenser) {
@@ -358,7 +270,7 @@ public class XMasDay {
             }
             this.itemList.add(stack.clone());
         }
-        this.saveItemsToFile();
+        this.saveItemsToNBTFile();
     }
 
     public void updateItems(Dropper dropper) {
@@ -370,7 +282,7 @@ public class XMasDay {
             }
             this.itemList.add(stack.clone());
         }
-        this.saveItemsToFile();
+        this.saveItemsToNBTFile();
     }
 
     public boolean dispenseItemsOP() {
