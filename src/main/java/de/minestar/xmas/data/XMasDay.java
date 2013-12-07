@@ -2,20 +2,14 @@ package de.minestar.xmas.data;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.DataInput;
 import java.io.DataInputStream;
-import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
-
-import net.minecraft.server.v1_7_R1.NBTTagCompound;
-import net.minecraft.server.v1_7_R1.NBTTagList;
 
 import org.bukkit.Material;
 import org.bukkit.block.Dispenser;
@@ -23,6 +17,9 @@ import org.bukkit.block.Dropper;
 import org.bukkit.craftbukkit.v1_7_R1.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 
+import de.minestar.minestarlibrary.data.nbt_1_6_2.NBTBase;
+import de.minestar.minestarlibrary.data.nbt_1_6_2.NBTTagCompound;
+import de.minestar.minestarlibrary.data.nbt_1_6_2.NBTTagList;
 import de.minestar.minestarlibrary.utils.ConsoleUtils;
 import de.minestar.xmas.XMASCore;
 
@@ -40,7 +37,8 @@ public class XMasDay {
         this.buttons = new ArrayList<BlockVector>();
         this.loadDispenserFromFile();
         this.loadButtonsFromFile();
-        this.loadItemsFromNBT();
+        this.itemList = this.loadItemsFromNBT();
+        System.out.println("NOTE: Items loaded for day " + this.day + " : " + this.itemList.size());
     }
 
     public boolean addPlayer(String playerName) {
@@ -121,85 +119,86 @@ public class XMasDay {
         }
     }
 
-    public void saveItemsToNBTFile() {
-        File file = new File(XMASCore.INSTANCE.getDataFolder(), "items_" + this.day + ".nbt");
+    // public void saveItemsToNBTFile() {
+    // File file = new File(XMASCore.INSTANCE.getDataFolder(), "items_" + this.day + ".nbt");
+    //
+    // if (file.exists()) {
+    // file.delete();
+    // }
+    //
+    // try {
+    // DataOutputStream outputStream = new DataOutputStream(new FileOutputStream(file));
+    //
+    // int itemAmount = 0;
+    // for (ItemStack stack : this.itemList) {
+    // if (stack == null) {
+    // continue;
+    // }
+    // itemAmount++;
+    // }
+    // outputStream.writeInt(itemAmount);
+    //
+    // // create itemlist
+    // NBTTagList tagList = new NBTTagList();
+    // for (int i = 0; i < this.itemList.size(); i++) {
+    // if (this.itemList.get(i) != null) {
+    // tagList.add(XMasDay.ItemStackToNBT(this.itemList.get(i)));
+    // }
+    // }
+    //
+    // // write to stream
+    // // thanks to @Bukkit, we need reflections here...
+    // try {
+    // Method method = NBTTagList.class.getDeclaredMethod("write", DataOutput.class);
+    // method.setAccessible(true);
+    // method.invoke(tagList, outputStream);
+    // } catch (Exception e) {
+    // e.printStackTrace();
+    // }
+    //
+    // // close stream
+    // outputStream.close();
+    // } catch (Exception e) {
+    // e.printStackTrace();
+    // }
+    // }
 
-        if (file.exists()) {
-            file.delete();
-        }
-
-        try {
-            DataOutputStream outputStream = new DataOutputStream(new FileOutputStream(file));
-
-            int itemAmount = 0;
-            for (ItemStack stack : this.itemList) {
-                if (stack == null) {
-                    continue;
-                }
-                itemAmount++;
-            }
-            outputStream.writeInt(itemAmount);
-
-            // create itemlist
-            NBTTagList tagList = new NBTTagList();
-            for (int i = 0; i < this.itemList.size(); i++) {
-                if (this.itemList.get(i) != null) {
-                    tagList.add(XMasDay.ItemStackToNBT(this.itemList.get(i)));
-                }
-            }
-
-            // write to stream
-            // thanks to @Bukkit, we need reflections here...
-            try {
-                Method method = NBTTagList.class.getDeclaredMethod("write", DataOutput.class);
-                method.setAccessible(true);
-                method.invoke(tagList, outputStream);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            // close stream
-            outputStream.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-    public void loadItemsFromNBT() {
-        this.itemList = new ArrayList<ItemStack>();
-        File file = new File(XMASCore.INSTANCE.getDataFolder(), "items_" + this.day + ".nbt");
-        if (!file.exists()) {
-            ConsoleUtils.printInfo(XMASCore.NAME, "ITEMS FOR DAY " + this.day + " NOT FOUND!");
-            return;
-        }
-
-        try {
-            DataInputStream inputStream = new DataInputStream(new FileInputStream(file));
-            int itemAmount = inputStream.readInt();
-
-            // load items from file
-            // thanks to @Bukkit, we need reflections here...
-            NBTTagList tagList = new NBTTagList();
-            try {
-                Method method = NBTTagList.class.getDeclaredMethod("load", DataInput.class, int.class);
-                method.setAccessible(true);
-                method.invoke(tagList, inputStream, 0);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            this.itemList.clear();
-            for (int i = 0; i < itemAmount; i++) {
-                net.minecraft.server.v1_7_R1.ItemStack nativeStack = net.minecraft.server.v1_7_R1.ItemStack.createStack((NBTTagCompound) tagList.get(i));
-                ItemStack bukkitStack = CraftItemStack.asBukkitCopy(nativeStack);
-                this.itemList.add(bukkitStack);
-            }
-
-            inputStream.close();
-        } catch (Exception e) {
-            this.itemList.clear();
-            e.printStackTrace();
-        }
-    }
+    // public void loadItemsFromNBT() {
+    // this.itemList = new ArrayList<ItemStack>();
+    // File file = new File(XMASCore.INSTANCE.getDataFolder(), "items_" + this.day + ".nbt");
+    // if (!file.exists()) {
+    // ConsoleUtils.printInfo(XMASCore.NAME, "ITEMS FOR DAY " + this.day + " NOT FOUND!");
+    // return;
+    // }
+    //
+    // try {
+    // DataInputStream inputStream = new DataInputStream(new FileInputStream(file));
+    // int itemAmount = inputStream.readInt();
+    //
+    // // load items from file
+    // // thanks to @Bukkit, we need reflections here...
+    // NBTTagList tagList = new NBTTagList();
+    // try {
+    // Method method = NBTTagList.class.getDeclaredMethod("load", DataInput.class, int.class);
+    // method.setAccessible(true);
+    // method.invoke(tagList, inputStream, 0);
+    // } catch (Exception e) {
+    // e.printStackTrace();
+    // }
+    //
+    // this.itemList.clear();
+    // for (int i = 0; i < itemAmount; i++) {
+    // net.minecraft.server.v1_7_R1.ItemStack nativeStack = net.minecraft.server.v1_7_R1.ItemStack.createStack((NBTTagCompound) tagList.get(i));
+    // ItemStack bukkitStack = CraftItemStack.asBukkitCopy(nativeStack);
+    // this.itemList.add(bukkitStack);
+    // }
+    //
+    // inputStream.close();
+    // } catch (Exception e) {
+    // this.itemList.clear();
+    // e.printStackTrace();
+    // }
+    // }
 
     public void loadDispenserFromFile() {
         File file = new File(XMASCore.INSTANCE.getDataFolder(), "blocks_" + this.day + ".txt");
@@ -254,12 +253,29 @@ public class XMasDay {
         }
     }
 
-    public static NBTTagCompound ItemStackToNBT(ItemStack stack) {
-        net.minecraft.server.v1_7_R1.ItemStack nStack = CraftItemStack.asNMSCopy(stack);
-        NBTTagCompound tagCompound = new NBTTagCompound();
-        nStack.save(tagCompound);
-        return tagCompound;
-    }
+    // public static NBTTagCompound ItemStackToNBT(ItemStack stack) {
+    // if (stack == null) {
+    // System.out.println("STACK IS NULL");
+    // return new NBTTagCompound();
+    // }
+    // CraftItemStack cStack = (CraftItemStack) stack;
+    // NBTTagCompound tagCompound = new NBTTagCompound();
+    // try {
+    // Field field = cStack.getClass().getField("handle");
+    // field.setAccessible(true);
+    //
+    // net.minecraft.server.v1_7_R1.ItemStack nStack = new net.minecraft.server.v1_7_R1.ItemStack((Block) Block.REGISTRY.a(stack.getTypeId()));
+    // nStack = (net.minecraft.server.v1_7_R1.ItemStack) (field.get(nStack));
+    // if (nStack == null) {
+    // System.out.println("NATIVE STACK IS NULL");
+    // return new NBTTagCompound();
+    // }
+    // nStack.save(tagCompound);
+    // } catch (Exception e) {
+    // e.printStackTrace();
+    // }
+    // return tagCompound;
+    // }
 
     public void updateItems(Dispenser dispenser) {
         this.itemList.clear();
@@ -270,7 +286,7 @@ public class XMasDay {
             }
             this.itemList.add(stack.clone());
         }
-        this.saveItemsToNBTFile();
+        this.saveItemsToNBTFile(this.itemList);
     }
 
     public void updateItems(Dropper dropper) {
@@ -282,7 +298,7 @@ public class XMasDay {
             }
             this.itemList.add(stack.clone());
         }
-        this.saveItemsToNBTFile();
+        this.saveItemsToNBTFile(this.itemList);
     }
 
     public boolean dispenseItemsOP() {
@@ -378,5 +394,78 @@ public class XMasDay {
         for (BlockVector vector : this.buttons) {
             XMASCore.registerBlock(vector, this);
         }
+    }
+
+    public void saveItemsToNBTFile(ArrayList<ItemStack> itemList) {
+        // TODO: here is something wrong...
+        System.out.println("try to save items: " + itemList.size());
+        File file = new File(XMASCore.INSTANCE.getDataFolder(), "items_" + this.day + ".nbt");
+
+        if (file.exists()) {
+            file.delete();
+        }
+
+        try {
+            DataOutputStream outputStream = new DataOutputStream(new FileOutputStream(file));
+
+            int itemAmount = 0;
+            for (ItemStack stack : itemList) {
+                if (stack == null) {
+                    continue;
+                }
+                itemAmount++;
+            }
+            outputStream.writeInt(itemAmount);
+
+            // create itemlist
+            net.minecraft.server.v1_7_R1.NBTTagList nList = new net.minecraft.server.v1_7_R1.NBTTagList();
+            for (int i = 0; i < itemList.size(); i++) {
+                if (itemList.get(i) != null) {
+                    net.minecraft.server.v1_7_R1.NBTTagCompound compound = new net.minecraft.server.v1_7_R1.NBTTagCompound();
+                    compound = CraftItemStack.asNMSCopy(itemList.get(i)).save(compound);
+                    nList.add(compound);
+                    System.out.println("compound: " + compound.toString());
+                }
+            }
+            System.out.println("nList: " + nList.size());
+            NBTTagList tagList = (NBTTagList) NBTBase.convertFromNative(nList);
+            System.out.println("tagList: " + tagList.size());
+
+            // write to stream
+            NBTBase.a(tagList, outputStream);
+
+            // close stream
+            outputStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public ArrayList<ItemStack> loadItemsFromNBT() {
+        ArrayList<ItemStack> itemList = new ArrayList<ItemStack>();
+        File file = new File(XMASCore.INSTANCE.getDataFolder(), "items_" + this.day + ".nbt");
+        if (!file.exists()) {
+            ConsoleUtils.printInfo(XMASCore.NAME, "ITEMS NOT FOUND!");
+            return itemList;
+        }
+        try {
+            DataInputStream reader = new DataInputStream(new FileInputStream(file));
+            int itemAmount = reader.readInt();
+
+            NBTTagList tagList = (NBTTagList) NBTBase.a(reader);
+            itemList.clear();
+            for (int i = 0; i < itemAmount; i++) {
+                net.minecraft.server.v1_7_R1.ItemStack nativeStack = net.minecraft.server.v1_7_R1.ItemStack.createStack((net.minecraft.server.v1_7_R1.NBTTagCompound) ((NBTTagCompound) tagList.get(i)).toNative());
+                if (nativeStack != null) {
+                    itemList.add(CraftItemStack.asBukkitCopy(nativeStack));
+                }
+            }
+
+            reader.close();
+        } catch (Exception e) {
+            itemList.clear();
+            e.printStackTrace();
+        }
+        return itemList;
     }
 }
