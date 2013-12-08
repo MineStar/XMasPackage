@@ -18,7 +18,7 @@ import org.bukkit.craftbukkit.v1_7_R1.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 
 import de.minestar.minestarlibrary.data.nbt_1_6_2.NBTBase;
-import de.minestar.minestarlibrary.data.nbt_1_6_2.NBTTagCompound;
+import de.minestar.minestarlibrary.data.nbt_1_6_2.NBTConverter;
 import de.minestar.minestarlibrary.data.nbt_1_6_2.NBTTagList;
 import de.minestar.minestarlibrary.utils.ConsoleUtils;
 import de.minestar.xmas.XMASCore;
@@ -397,8 +397,6 @@ public class XMasDay {
     }
 
     public void saveItemsToNBTFile(ArrayList<ItemStack> itemList) {
-        // TODO: here is something wrong...
-        System.out.println("try to save items: " + itemList.size());
         File file = new File(XMASCore.INSTANCE.getDataFolder(), "items_" + this.day + ".nbt");
 
         if (file.exists()) {
@@ -418,21 +416,19 @@ public class XMasDay {
             outputStream.writeInt(itemAmount);
 
             // create itemlist
-            net.minecraft.server.v1_7_R1.NBTTagList nList = new net.minecraft.server.v1_7_R1.NBTTagList();
+            net.minecraft.server.v1_7_R1.NBTTagList nativeTagList = new net.minecraft.server.v1_7_R1.NBTTagList();
             for (int i = 0; i < itemList.size(); i++) {
                 if (itemList.get(i) != null) {
                     net.minecraft.server.v1_7_R1.NBTTagCompound compound = new net.minecraft.server.v1_7_R1.NBTTagCompound();
                     compound = CraftItemStack.asNMSCopy(itemList.get(i)).save(compound);
-                    nList.add(compound);
-                    System.out.println("compound: " + compound.toString());
+                    nativeTagList.add(compound);
                 }
             }
-            System.out.println("nList: " + nList.size());
-            NBTTagList tagList = (NBTTagList) NBTBase.convertFromNative(nList);
-            System.out.println("tagList: " + tagList.size());
+            NBTTagList tagList = new NBTTagList();
+            tagList = (NBTTagList) NBTConverter.fromNative(nativeTagList);
 
             // write to stream
-            NBTBase.a(tagList, outputStream);
+            NBTBase.write(tagList, outputStream);
 
             // close stream
             outputStream.close();
@@ -452,10 +448,11 @@ public class XMasDay {
             DataInputStream reader = new DataInputStream(new FileInputStream(file));
             int itemAmount = reader.readInt();
 
-            NBTTagList tagList = (NBTTagList) NBTBase.a(reader);
+            NBTTagList tagList = (NBTTagList) NBTBase.read(reader);
+            net.minecraft.server.v1_7_R1.NBTTagList nativeList = (net.minecraft.server.v1_7_R1.NBTTagList) NBTConverter.toNative(tagList);
             itemList.clear();
             for (int i = 0; i < itemAmount; i++) {
-                net.minecraft.server.v1_7_R1.ItemStack nativeStack = net.minecraft.server.v1_7_R1.ItemStack.createStack((net.minecraft.server.v1_7_R1.NBTTagCompound) ((NBTTagCompound) tagList.get(i)).toNative());
+                net.minecraft.server.v1_7_R1.ItemStack nativeStack = net.minecraft.server.v1_7_R1.ItemStack.createStack((net.minecraft.server.v1_7_R1.NBTTagCompound) nativeList.get(i));
                 if (nativeStack != null) {
                     itemList.add(CraftItemStack.asBukkitCopy(nativeStack));
                 }
