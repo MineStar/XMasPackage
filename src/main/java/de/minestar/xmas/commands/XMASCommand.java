@@ -25,7 +25,7 @@ public class XMASCommand extends AbstractCommand {
             int day = Integer.valueOf(args[0]);
             if (day > 0 && day < 25) {
                 AdminListener.adminMap.put(player.getName(), day);
-                PlayerUtils.sendSuccess(player, XMASCore.NAME, "Day set!");
+                PlayerUtils.sendSuccess(player, XMASCore.NAME, "Day set! Use the same command again to unset the day!");
             } else {
                 AdminListener.adminMap.remove(player.getName());
                 PlayerUtils.sendSuccess(player, XMASCore.NAME, "Day unset!");

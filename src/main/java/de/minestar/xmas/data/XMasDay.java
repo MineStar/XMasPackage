@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import org.bukkit.Material;
 import org.bukkit.block.Dispenser;
 import org.bukkit.block.Dropper;
-import org.bukkit.craftbukkit.v1_7_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 
 import de.minestar.minestarlibrary.data.nbt_1_6_2.NBTBase;
@@ -416,10 +416,10 @@ public class XMasDay {
             outputStream.writeInt(itemAmount);
 
             // create itemlist
-            net.minecraft.server.v1_7_R1.NBTTagList nativeTagList = new net.minecraft.server.v1_7_R1.NBTTagList();
+            net.minecraft.server.v1_8_R3.NBTTagList nativeTagList = new net.minecraft.server.v1_8_R3.NBTTagList();
             for (int i = 0; i < itemList.size(); i++) {
                 if (itemList.get(i) != null) {
-                    net.minecraft.server.v1_7_R1.NBTTagCompound compound = new net.minecraft.server.v1_7_R1.NBTTagCompound();
+                    net.minecraft.server.v1_8_R3.NBTTagCompound compound = new net.minecraft.server.v1_8_R3.NBTTagCompound();
                     compound = CraftItemStack.asNMSCopy(itemList.get(i)).save(compound);
                     nativeTagList.add(compound);
                 }
@@ -449,10 +449,10 @@ public class XMasDay {
             int itemAmount = reader.readInt();
 
             NBTTagList tagList = (NBTTagList) NBTBase.read(reader);
-            net.minecraft.server.v1_7_R1.NBTTagList nativeList = (net.minecraft.server.v1_7_R1.NBTTagList) NBTConverter.toNative(tagList);
+            net.minecraft.server.v1_8_R3.NBTTagList nativeList = (net.minecraft.server.v1_8_R3.NBTTagList) NBTConverter.toNative(tagList);
             itemList.clear();
             for (int i = 0; i < itemAmount; i++) {
-                net.minecraft.server.v1_7_R1.ItemStack nativeStack = net.minecraft.server.v1_7_R1.ItemStack.createStack((net.minecraft.server.v1_7_R1.NBTTagCompound) nativeList.get(i));
+                net.minecraft.server.v1_8_R3.ItemStack nativeStack = net.minecraft.server.v1_8_R3.ItemStack.createStack((net.minecraft.server.v1_8_R3.NBTTagCompound) nativeList.get(i));
                 if (nativeStack != null) {
                     itemList.add(CraftItemStack.asBukkitCopy(nativeStack));
                 }
