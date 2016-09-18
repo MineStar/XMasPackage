@@ -33,7 +33,7 @@ public class AdminListener implements Listener {
 
         Player player = event.getPlayer();
         Block block = event.getClickedBlock();
-        ItemStack itemInHand = player.getItemInHand();
+        ItemStack itemInHand = player.getInventory().getItemInMainHand();
 
         if (itemInHand == null || !itemInHand.getType().equals(Material.BEACON)) {
             return;
