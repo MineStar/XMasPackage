@@ -4,22 +4,27 @@
 	<groupId>de.minestar</groupId>
 	<artifactId>XMAS</artifactId>
 	<version>1.8.7-SNAPSHOT</version>
-	<distributionManagement>
-		<!-- use the following if you're not using a snapshot version. -->
+	<repositories>
 		<repository>
-			<id>nexus</id>
-			<name>RepositoryProxy</name>
-			<url>http://server2.minestar.de:8081/nexus/content/repositories/releases</url>
+			<id>MinestarNexus</id>
+			<url>http://nexus.outi-networks.de/content/groups/public/</url>
 		</repository>
-		<!-- use the following if you ARE using a snapshot version. -->
-		<snapshotRepository>
-			<id>nexus</id>
-			<name>RepositoryProxy</name>
-			<url>http://server2.minestar.de:8081/nexus/content/repositories/snapshots</url>
-		</snapshotRepository>
-	</distributionManagement>
+	</repositories>	
+	<distributionManagement>
+        <!-- use the following if you're not using a snapshot version. -->
+        <repository>
+            <id>minestarDeployment</id>
+            <name>Internal Releases</name>
+            <url>http://nexus.outi-networks.de/content/repositories/releases/</url>
+        </repository>
+        <!-- use the following if you ARE using a snapshot version. -->
+        <snapshotRepository>
+            <id>minestarDeployment</id>
+            <name>Internal Releases</name>
+            <url>http://nexus.outi-networks.de/content/repositories/snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
 	<build>
-		<sourceDirectory>src</sourceDirectory>
 		<resources>
 			<resource>
 				<directory>src/main/resources/</directory>
@@ -27,15 +32,16 @@
 			</resource>
 		</resources>
 		<plugins>
-			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.3.2</version>
-				<configuration>
-					<source>1.6</source>
-					<target>1.6</target>
-				</configuration>
-			</plugin>
-		</plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+        </plugins>
 	</build>
 	<dependencies>
 		<dependency>
@@ -49,4 +55,8 @@
 			<version>4.11</version>
 		</dependency>
 	</dependencies>
+	<properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    </properties>
 </project>
