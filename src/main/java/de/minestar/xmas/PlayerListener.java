@@ -72,10 +72,13 @@ public class PlayerListener implements Listener {
         if (month != 12) {
             return;
         }
+        
+        /*
         if (nowDay < 1 || nowDay > 24) {
             return;
         }
-
+        */
+        
         vector.update(block.getLocation());
         XMasDay day = XMASCore.getDayByButton(vector);
         if (day == null) {
@@ -171,13 +174,13 @@ public class PlayerListener implements Listener {
             } else if (x >= 0.6) {
                 player.sendMessage(ChatColor.RED + "Push the button, don't push the button.");
             } else if (x >= 0.5) {
-                player.sendMessage(ChatColor.RED + "Das sind keine Hupen! *möööööp*");
+                player.sendMessage(ChatColor.RED + "Das sind keine Hupen! *mÃ¶Ã¶Ã¶Ã¶Ã¶p*");
             } else if (x >= 0.4) {
-                player.sendMessage(ChatColor.RED + "Du musst fester drücken!");
+                player.sendMessage(ChatColor.RED + "Du musst fester drÃ¼cken!");
             } else if (x >= 0.3) {
-                player.sendMessage(ChatColor.RED + "Drück mich härter!");
+                player.sendMessage(ChatColor.RED + "DrÃ¼ck mich hÃ¤rter!");
             } else if (x > 0.2) {
-                player.sendMessage(ChatColor.RED + "Junge... so ein Feuerball.... BÄM!");
+                player.sendMessage(ChatColor.RED + "Junge... so ein Feuerball.... BÃ„M!");
             }
             player.sendMessage(ChatColor.GRAY + "Netter Versuch. Komm morgen wieder...");
         }
