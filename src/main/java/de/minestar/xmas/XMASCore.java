@@ -3,6 +3,7 @@ package de.minestar.xmas;
 import java.io.File;
 import java.util.HashMap;
 
+import de.minestar.xmas.unit.Settings;
 import org.bukkit.plugin.PluginManager;
 
 import de.minestar.minestarlibrary.AbstractCore;
@@ -89,5 +90,10 @@ public class XMASCore extends AbstractCore {
         pm.registerEvents(adminListener, this);
         pm.registerEvents(playerListener, this);
         return super.registerEvents(pm);
+    }
+
+    @Override
+    protected boolean loadingConfigs(File dataFolder) {
+        return Settings.init(dataFolder, NAME, this.getDescription().getVersion());
     }
 }

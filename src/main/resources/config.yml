@@ -1,0 +1,3 @@
+VERSION: ${pom.version}
+xmas:
+    additionalDays: 0

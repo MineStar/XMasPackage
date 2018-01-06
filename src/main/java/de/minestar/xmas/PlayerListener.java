@@ -2,9 +2,12 @@ package de.minestar.xmas;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Random;
 
+import de.minestar.xmas.unit.Settings;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -53,12 +56,12 @@ public class PlayerListener implements Listener {
             return;
         }
 
-        Date date = new Date();
-        int nowDay = Integer.valueOf(dayFormat.format(date));
-        int month = Integer.valueOf(monthFormat.format(date));
+        GregorianCalendar cal = new GregorianCalendar();
+        int nowDay = cal.get(Calendar.DAY_OF_MONTH);
+        int month = cal.get(Calendar.MONTH);
+        int dayOfYear = cal.get(Calendar.DAY_OF_YEAR);
 
         if (player.isOp()) {
-            month = 12;
             vector.update(block.getLocation());
             XMasDay override = XMASCore.getDayByButton(vector);
             if (override == null) {
@@ -69,15 +72,9 @@ public class PlayerListener implements Listener {
             return;
         }
 
-        if (month != 12) {
+        if (month != Calendar.DECEMBER && dayOfYear > Settings.getAdditionalDays()) {
             return;
         }
-        
-        /*
-        if (nowDay < 1 || nowDay > 24) {
-            return;
-        }
-        */
         
         vector.update(block.getLocation());
         XMasDay day = XMASCore.getDayByButton(vector);
@@ -85,7 +82,7 @@ public class PlayerListener implements Listener {
             return;
         }
 
-        if (day.getDay() > nowDay || nowDay < day.getDay() - 3) {
+        if (month == Calendar.DECEMBER && nowDay < day.getDay()) {
             return;
         }
 
